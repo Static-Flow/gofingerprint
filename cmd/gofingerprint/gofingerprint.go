@@ -21,13 +21,15 @@ type Fingerprint struct {
 	//identifier of the fingerprint e.g. JIRA,Tomcat,AEM,etc
 	Name string `json:"name"`
 	//the actual string used to fingerprint a service or application
-	Fingerprint string `json:"fingerprint"`
+	Fingerprints []string `json:"fingerprint"`
 }
 
 func matcher(response string, fingerprints []Fingerprint) (Fingerprint, bool) {
 	for _, fingerprint := range fingerprints {
-		if strings.Contains(response, strings.ToLower(fingerprint.Fingerprint)) {
-			return fingerprint, true
+		for _, search := range fingerprint.Fingerprints {
+			if strings.Contains(response, strings.ToLower(search)) {
+				return fingerprint, true
+			}
 		}
 	}
 	return Fingerprint{}, false
@@ -80,21 +82,16 @@ func main() {
 	domainsToSearch := make(chan string)
 	matchBuckets := make(map[string][]string)
 	var fingerprints []Fingerprint
-	var pathToFetch string
-	path := flag.String("path", "/", "The path to hit each target with to get a response. (does not override method in fingerprint file)")
+	badpath := flag.String("badpath", "/sfdrbdbdb", "The intentional 404 path to hit each target with to get a response.")
 	fingerprintFile := flag.String("fingerprints", "", "JSON file containing fingerprints to search for.")
 	workers := flag.Int("workers", 20, "Number of workers to process urls")
 	outputDir := flag.String("output", "./", "Directory to output files")
 	timeoutPtr := flag.Int("timeout", 10, "timeout for connecting to servers")
-	methodPtr := flag.String("method", "GET", "which HTTP request to make the request with. (does not override method in fingerprint file)")
+	methodPtr := flag.String("method", "GET", "which HTTP request to make the request with.")
 	bodyPtr := flag.String("body", "", "Data to send in the request body")
 	debug := flag.Bool("debug", false, "Enable to see any errors with fetching targets")
 	flag.Parse()
 	http.DefaultClient.Timeout = time.Duration(*timeoutPtr) * time.Second
-	if pathToFetch = *path; len(pathToFetch) == 0 {
-		log.Fatalln("-path flag must be set.")
-	}
-
 	jsonFile, err := os.Open(*fingerprintFile)
 	if err != nil {
 		log.Fatalln(err)
@@ -115,9 +112,10 @@ func main() {
 		*/
 		go func(fingerprintContainers map[string][]string) {
 			for domain := range domainsToSearch {
-				responseString, err := fetcher(domain, pathToFetch, *methodPtr, *bodyPtr)
+				responseStringBad, err := fetcher(domain, *badpath, *methodPtr, *bodyPtr)
+				responseStringGood, err := fetcher(domain, *badpath, *methodPtr, *bodyPtr)
 				if err == nil {
-					matchedFingerprint, matchFound := matcher(responseString, fingerprints)
+					matchedFingerprint, matchFound := matcher(responseStringGood+responseStringBad, fingerprints)
 					if matchFound {
 						log.Println(matchedFingerprint.Name + " found at " + domain)
 						fingerprintContainers[matchedFingerprint.Name] = append(matchBuckets[matchedFingerprint.Name], domain)

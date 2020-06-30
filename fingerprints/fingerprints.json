@@ -1,70 +1,70 @@
 [
   {
     "name": "jira",
-    "fingerprint" : "Atlassian Jira"
+    "fingerprint" : ["Atlassian Jira"]
   },
   {
     "name": "grafana",
-    "fingerprint" : "grafana"
+    "fingerprint" : ["grafana"]
   },
   {
     "name": "github",
-    "fingerprint" : "X-Github"
+    "fingerprint" : ["X-Github"]
   },
   {
     "name": "jenkins",
-    "fingerprint" : "X-Jenkins",
+    "fingerprint" : ["X-Jenkins"]
   },
   {
     "name": "tomcat",
-    "fingerprint" : "<title>HTTP Status 404 – Not Found</title>",
+    "fingerprint" : ["<title>HTTP Status 404"]
   },
   {
     "name": "splunk",
-    "fingerprint" : "Server: Splunkd"
+    "fingerprint" : ["Server: Splunkd"]
   },
   {
     "name": "confluence",
-    "fingerprint" : "Confluence"
+    "fingerprint" : ["Confluence"]
   },
   {
     "name": "fisheye",
-    "fingerprint" : "Log in to Crucible"
+    "fingerprint" : ["Log in to Crucible"]
   },
   {
     "name": "bitbucket",
-    "fingerprint" : "Atlassian Bitbucket"
+    "fingerprint" : ["Atlassian Bitbucket"]
   },
   {
     "name": "bootspring",
-    "fingerprint" : "x-application-context"
+    "fingerprint" :["x-application-context"]
   },
   {
     "name": "aem",
-    "fingerprint" : "/etc.clientlibs/"
+    "fingerprint" : ["/etc.clientlibs/"]
   },
   {
     "name": "cisco",
-    "fingerprint" : "Set-Cookie: webvpncontext"
+    "fingerprint" : ["Set-Cookie: webvpncontext"]
   },
   {
     "name": "pulse",
-    "fingerprint" : "dana-na"
+    "fingerprint" : ["dana-na"]
   },
   {
     "name": "okta",
-    "fingerprint" : "location: *.okta.com"
+    "fingerprint" : ["location: *.okta.com"]
   },
   {
     "name": "onelogin",
-    "fingerprint" : "location: *.onelogin.com"
+    "fingerprint" : ["location: *.onelogin.com"]
   },
   {
     "name": "openvpn",
-    "fingerprint": "Server: OpenVPN"
+    "fingerprint": ["Server: OpenVPN"]
   },
   {
     "name": "pritunl",
-    "fingerprint": "pritunl"
+    "fingerprint": ["pritunl"]
   }
 ]
