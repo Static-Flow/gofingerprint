@@ -33,7 +33,9 @@ GoFingerprint (GF) helps quickly indentify web servers by checking their HTTP re
 [
   {
     "name": "<UNIQUE NAME OF FINGERPRINT>",
-    "fingerprint" : "<SEARCH TEXT USED TO ID SERVICE OR PRODUCT>"
+    "fingerprint" : "<SEARCH TEXT USED TO ID SERVICE OR PRODUCT>",
+    "method": "<HTTP METHOD (GET/POST)>" #optional,
+    "path": "<PATH TO REQUEST ON SERVER>" #optional
   }
 ]
 ```
