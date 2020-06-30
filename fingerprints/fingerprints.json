@@ -13,11 +13,11 @@
   },
   {
     "name": "jenkins",
-    "fingerprint" : "X-Jenkins"
+    "fingerprint" : "X-Jenkins",
   },
   {
     "name": "tomcat",
-    "fingerprint" : "<title>HTTP Status 404 – Not Found</title>"
+    "fingerprint" : "<title>HTTP Status 404 – Not Found</title>",
   },
   {
     "name": "splunk",
