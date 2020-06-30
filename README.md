@@ -1,6 +1,7 @@
-# gf
+# gofingerprint
 GoFingerprint helps quickly indentify web servers by checking their HTTP responses against a user defined list of fingerprints. Whether it's trying to determine which servers in your recon set are bootspring or testing for a specific response from a payload, gf is the tool for you!
 
+Thanks to @nahamsec https://github.com/nahamsec for the tool idea!
 
 ### usage options
 ```
