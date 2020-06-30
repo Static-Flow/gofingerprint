@@ -1,5 +1,5 @@
 # gf
-GoFingerprint (GF) is a Go tool for taking a list of target webservers and checking their HTTP response against a user defined list of fingerprints to try and determine what product or service is running on a target.
+GoFingerprint (GF) helps quickly indentify web servers by checking their HTTP responses against a user defined list of fingerprints. Whether it's trying to determine which servers in your recon set are bootspring or testing for a specific response from a payload, gf is the tool for you!
 
 
 ### usage options
