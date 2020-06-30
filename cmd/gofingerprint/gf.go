@@ -71,7 +71,7 @@ func main() {
 	matchBuckets := make(map[string][]string)
 	var fingerprints []Fingerprint
 	var pathToFetch string
-	badPath := flag.String("badpath", "", "The path to hit each target with to get a response.")
+	badPath := flag.String("path", "", "The path to hit each target with to get a response.")
 	fingerprintFile := flag.String("fingerprints", "", "JSON file containing fingerprints to search for.")
 	workers := flag.Int("workers", 20, "Number of workers to process urls")
 	outputDir := flag.String("output", "./", "Directory to output files")
@@ -126,8 +126,21 @@ func main() {
 	close(domainsToSearch)
 	wg.Wait()
 	fmt.Println("Writing results to fingerprint files")
+
+	outputDirectory := *outputDir
+	if !strings.HasSuffix(*outputDir, "/") {
+		outputDirectory += "/"
+	}
+
+	if _, err := os.Stat(outputDirectory); os.IsNotExist(err) {
+		errDir := os.MkdirAll(outputDirectory, 0755)
+		if errDir != nil {
+			log.Fatal(err)
+		}
+
+	}
 	for fingerprint := range matchBuckets {
-		f, err := os.Create(*outputDir + fingerprint + ".txt")
+		f, err := os.Create(outputDirectory + fingerprint + ".txt")
 		if err != nil {
 			fmt.Println(err.Error())
 			return
