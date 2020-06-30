@@ -1,0 +1,70 @@
+[
+  {
+    "name": "jira",
+    "fingerprint" : "Atlassian Jira"
+  },
+  {
+    "name": "grafana",
+    "fingerprint" : "grafana"
+  },
+  {
+    "name": "github",
+    "fingerprint" : "X-Github"
+  },
+  {
+    "name": "jenkins",
+    "fingerprint" : "X-Jenkins"
+  },
+  {
+    "name": "tomcat",
+    "fingerprint" : "<title>HTTP Status 404 – Not Found</title>"
+  },
+  {
+    "name": "splunk",
+    "fingerprint" : "Server: Splunkd"
+  },
+  {
+    "name": "confluence",
+    "fingerprint" : "Confluence"
+  },
+  {
+    "name": "fisheye",
+    "fingerprint" : "Log in to Crucible"
+  },
+  {
+    "name": "bitbucket",
+    "fingerprint" : "Atlassian Bitbucket"
+  },
+  {
+    "name": "bootspring",
+    "fingerprint" : "x-application-context"
+  },
+  {
+    "name": "aem",
+    "fingerprint" : "/etc.clientlibs/"
+  },
+  {
+    "name": "cisco",
+    "fingerprint" : "Set-Cookie: webvpncontext"
+  },
+  {
+    "name": "pulse",
+    "fingerprint" : "dana-na"
+  },
+  {
+    "name": "okta",
+    "fingerprint" : "location: *.okta.com"
+  },
+  {
+    "name": "onelogin",
+    "fingerprint" : "location: *.onelogin.com"
+  },
+  {
+    "name": "openvpn",
+    "fingerprint": "Server: OpenVPN"
+  },
+  {
+    "name": "pritunl",
+    "fingerprint": "pritunl"
+  }
+]
