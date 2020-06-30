@@ -25,19 +25,19 @@ type Fingerprint struct {
 	ExpectedResonse int `json:"code"`
 }
 
-func matcher(response string, fingerprints []Fingerprint) (Fingerprint,bool) {
-	for _,fingerprint := range fingerprints {
-		if strings.Contains(response,strings.ToLower(fingerprint.Fingerprint)) {
-			return fingerprint,true
+func matcher(response string, fingerprints []Fingerprint) (Fingerprint, bool) {
+	for _, fingerprint := range fingerprints {
+		if strings.Contains(response, strings.ToLower(fingerprint.Fingerprint)) {
+			return fingerprint, true
 		}
 	}
 	return Fingerprint{}, false
 }
 
-func fetcher(host string, path string) (string,error) {
+func fetcher(host string, path string) (string, error) {
 	//normalize host and path so we don't get host//path situations
-	if !strings.HasPrefix(host,"https") {
-		host = "https://"+host
+	if !strings.HasPrefix(host, "https") {
+		host = "https://" + host
 	}
 	if host[len(host)-1] == '/' {
 		if path[0] == '/' {
@@ -54,12 +54,12 @@ func fetcher(host string, path string) (string,error) {
 	}
 	resp, err := http.Get(host)
 	if err != nil {
-		return "",err
+		return "", err
 	}
 	defer resp.Body.Close()
 	responseString, err := httputil.DumpResponse(resp, true)
 	if err != nil {
-		return "",err
+		return "", err
 	}
 	return strings.ToLower(string(responseString)), nil
 }
@@ -71,12 +71,12 @@ func main() {
 	matchBuckets := make(map[string][]string)
 	var fingerprints []Fingerprint
 	var pathToFetch string
-	badPath := flag.String("badpath","","The path to hit each target with to get a response.")
+	badPath := flag.String("badpath", "", "The path to hit each target with to get a response.")
 	fingerprintFile := flag.String("fingerprints", "", "JSON file containing fingerprints to search for.")
 	workers := flag.Int("workers", 20, "Number of workers to process urls")
-	outputDir := flag.String("output","./","Directory to output files")
+	outputDir := flag.String("output", "./", "Directory to output files")
 	timeoutPtr := flag.Int("timeout", 10, "timeout for connecting to servers")
-	debug := flag.Bool("debug",false,"Enable to see any errors with fetching targets")
+	debug := flag.Bool("debug", false, "Enable to see any errors with fetching targets")
 	flag.Parse()
 	http.DefaultClient.Timeout = time.Duration(*timeoutPtr) * time.Second
 	if pathToFetch = *badPath; len(pathToFetch) == 0 {
@@ -90,10 +90,9 @@ func main() {
 	defer jsonFile.Close()
 
 	byteValue, _ := ioutil.ReadAll(jsonFile)
-	if err := json.Unmarshal(byteValue,&fingerprints); err != nil {
-		log.Fatalf("Error parsing JSON. Check that it is compliant. \n %s \n",err)
+	if err := json.Unmarshal(byteValue, &fingerprints); err != nil {
+		log.Fatalf("Error parsing JSON. Check that it is compliant. \n %s \n", err)
 	}
-
 
 	for i := 0; i < *workers; i++ {
 		wg.Add(1)
@@ -104,10 +103,11 @@ func main() {
 		*/
 		go func(fingerprintContainers map[string][]string) {
 			for domain := range domainsToSearch {
-				responseString,err := fetcher(domain,pathToFetch)
+				responseString, err := fetcher(domain, pathToFetch)
 				if err == nil {
-					matchedFingerprint, matchFound := matcher(responseString,fingerprints); if matchFound {
-						log.Println(matchedFingerprint.Name + " found at "+ domain)
+					matchedFingerprint, matchFound := matcher(responseString, fingerprints)
+					if matchFound {
+						log.Println(matchedFingerprint.Name + " found at " + domain)
 						fingerprintContainers[matchedFingerprint.Name] = append(matchBuckets[matchedFingerprint.Name], domain)
 					}
 				} else {
@@ -127,13 +127,13 @@ func main() {
 	wg.Wait()
 	fmt.Println("Writing results to fingerprint files")
 	for fingerprint := range matchBuckets {
-		f, err := os.Create(*outputDir+fingerprint+".txt")
+		f, err := os.Create(*outputDir + fingerprint + ".txt")
 		if err != nil {
 			fmt.Println(err.Error())
 			return
 		}
-		for _,fingerprintedDomain := range matchBuckets[fingerprint] {
-			_, err := f.WriteString(fingerprintedDomain+"\n")
+		for _, fingerprintedDomain := range matchBuckets[fingerprint] {
+			_, err := f.WriteString(fingerprintedDomain + "\n")
 			if err != nil {
 				fmt.Println(err.Error())
 				f.Close()
