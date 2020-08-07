@@ -1,7 +1,11 @@
 [
   {
     "name": "jira",
-    "fingerprint" : ["Atlassian Jira"]
+    "fingerprint" : ["Atlassian Jira","Jira"]
+  },
+  {
+    "name": "gitlab",
+    "fingerprint": ["set-cookie: _gitlab_session"]
   },
   {
     "name": "grafana",
@@ -17,7 +21,7 @@
   },
   {
     "name": "tomcat",
-    "fingerprint" : ["<title>HTTP Status 404"]
+    "fingerprint" : ["Tomcat"]
   },
   {
     "name": "splunk",
@@ -45,7 +49,7 @@
   },
   {
     "name": "cisco",
-    "fingerprint" : ["Set-Cookie: webvpncontext"]
+    "fingerprint" : ["Set-Cookie: webvpncontext","Cisco Secure Desktop"]
   },
   {
     "name": "pulse",
@@ -53,7 +57,7 @@
   },
   {
     "name": "okta",
-    "fingerprint" : ["location: *.okta.com"]
+    "fingerprint" : ["location: *.okta.com","<a href=\"http://www.okta.com/\""]
   },
   {
     "name": "onelogin",
@@ -66,5 +70,21 @@
   {
     "name": "pritunl",
     "fingerprint": ["pritunl"]
+  },
+  {
+    "name": "graphql",
+    "fingerprint": ["query missing","Prettify"]
+  },
+  {
+    "name": "Prometheus",
+    "fingerprint": ["Prometheus"]
+  },
+  {
+    "name": "Citrix",
+    "fingerprint": ["Citrix Login","Citrix"]
+  },
+  {
+    "name": "BIG-IP",
+    "fingerprint": ["<title>BIG-IP","BIG-IP-F5"]
   }
 ]

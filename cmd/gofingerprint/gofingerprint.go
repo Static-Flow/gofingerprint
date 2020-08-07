@@ -2,20 +2,130 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"crypto/tls"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/gocolly/colly"
 	"io/ioutil"
 	"log"
+	"math/rand"
+	"net"
 	"net/http"
-	"net/http/httputil"
 	"os"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
 )
+
+var debug bool
+var JobQueue chan *Job
+var client http.Client
+
+type Job struct {
+	Target    *Target
+	Path      string
+	Method    string
+	Data      string
+	Collector colly.Collector
+}
+
+func NewJob(target Target, badPath string, requestMethod string, requestBody string) Job {
+	collector := colly.NewCollector(
+		colly.MaxDepth(1),
+	)
+	collector.AllowURLRevisit = true
+	collector.SetClient(&client)
+	collector.ParseHTTPErrorResponse = true
+	collector.OnHTML("title", func(element *colly.HTMLElement) {
+		if len(element.Text) > 49 {
+			target.Title = element.Text[:49]
+		} else {
+			target.Title = element.Text
+		}
+	})
+	collector.OnResponse(func(response *colly.Response) {
+		target.Status = response.StatusCode
+		target.Body = string(response.Body)
+	})
+	return Job{&target, badPath, requestMethod, requestBody, *collector}
+}
+
+func (j Job) Fetch() {
+	targetUrl := "https://" + j.Target.Ip + ":" + j.Target.Port + j.Path
+	err := j.Collector.Visit(targetUrl)
+	if err != nil && debug {
+		fmt.Println(targetUrl)
+		fmt.Println(err)
+	}
+}
+
+type Target struct {
+	Domain          string
+	Ip              string
+	Port            string
+	FingerprintName string
+	Title           string
+	Status          int
+	Body            string
+}
+
+type Worker struct {
+	JobChannel   chan *Job
+	Fingerprints []Fingerprint
+	WorkGroup    *sync.WaitGroup
+	Colly        colly.Collector
+}
+
+func NewWorker(jobs chan *Job, fingerprints []Fingerprint, wg *sync.WaitGroup) Worker {
+	return Worker{
+		JobChannel:   jobs,
+		Fingerprints: fingerprints,
+		WorkGroup:    wg,
+	}
+}
+
+func (w Worker) Start2() {
+	w.WorkGroup.Add(1)
+	go func(wgi *sync.WaitGroup) {
+		for {
+			select {
+			case job := <-w.JobChannel:
+				if job == nil {
+					wgi.Done()
+					return
+				} else {
+					job.Fetch()
+					for _, fingerprint := range w.Fingerprints {
+						if len(job.Target.FingerprintName) == 0 {
+							for _, search := range fingerprint.Fingerprints {
+								if matched, _ := regexp.MatchString(search, job.Target.Body); matched {
+									job.Target.FingerprintName = fingerprint.Name
+									fmt.Printf("https://%s:%s\n", job.Target.Domain, fingerprint.Name)
+									break
+								}
+							}
+						} else {
+							break
+						}
+					}
+
+					if len(job.Target.FingerprintName) == 0 && debug {
+						fmt.Println("No Match")
+					}
+				}
+			}
+		}
+	}(w.WorkGroup)
+}
+
+func NewTarget(targetParts string) Target {
+	targetPieces := strings.Split(targetParts, ",")
+	return Target{strings.ReplaceAll(targetPieces[0], "\"", ""),
+		strings.ReplaceAll(targetPieces[1], "\"", ""),
+		strings.ReplaceAll(targetPieces[2], "\"", ""), "", "", 0, ""}
+}
 
 type Fingerprint struct {
 	//identifier of the fingerprint e.g. JIRA,Tomcat,AEM,etc
@@ -24,74 +134,60 @@ type Fingerprint struct {
 	Fingerprints []string `json:"fingerprint"`
 }
 
-func matcher(response string, fingerprints []Fingerprint) (Fingerprint, bool) {
-	for _, fingerprint := range fingerprints {
-		for _, search := range fingerprint.Fingerprints {
-			if strings.Contains(response, strings.ToLower(search)) {
-				return fingerprint, true
-			}
-		}
+func genBadPath() string {
+	seededRand := rand.New(
+		rand.NewSource(time.Now().UnixNano()))
+	charset := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	b := make([]byte, 8)
+	for i := range b {
+		b[i] = charset[seededRand.Intn(len(charset))]
 	}
-	return Fingerprint{}, false
-}
-
-func fetcher(host string, path string, method string, body string) (string, error) {
-	//normalize host and path so we don't get host//path situations
-	if !strings.HasPrefix(host, "https") {
-		host = "https://" + host
-	}
-	if host[len(host)-1] == '/' {
-		if path[0] == '/' {
-			host = host + path[1:]
-		} else {
-			host = host + path
-		}
-	} else {
-		if path[0] == '/' {
-			host = host + path
-		} else {
-			host = host + "/" + path
-		}
-	}
-	var resp *http.Response
-	var req *http.Request
-	var err error
-	switch strings.ToLower(method) {
-	case "post":
-		req, err = http.NewRequest("POST", host, bytes.NewBufferString(body))
-	case "get":
-		fallthrough
-	default:
-		req, err = http.NewRequest("GET", host, nil)
-	}
-	resp, err = http.DefaultClient.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-	responseString, err := httputil.DumpResponse(resp, true)
-	if err != nil {
-		return "", err
-	}
-	return strings.ToLower(string(responseString)), nil
+	return "/" + string(b)
 }
 
 func main() {
-	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-	var wg sync.WaitGroup
-	domainsToSearch := make(chan string)
-	matchBuckets := make(map[string][]string)
+	wg := sync.WaitGroup{}
 	var fingerprints []Fingerprint
-	badpath := flag.String("badpath", "/sfdrbdbdb", "The intentional 404 path to hit each target with to get a response.")
+	var badPath string
+	badpathPtr := flag.String("badpath", "", "The intentional 404 path to hit each target with to get a response.")
 	fingerprintFile := flag.String("fingerprints", "", "JSON file containing fingerprints to search for.")
-	workers := flag.Int("workers", 20, "Number of workers to process urls")
-	outputDir := flag.String("output", "./", "Directory to output files")
 	timeoutPtr := flag.Int("timeout", 10, "timeout for connecting to servers")
-	methodPtr := flag.String("method", "GET", "which HTTP request to make the request with.")
+	workers := flag.Int("workers", 20, "Number of workers to process urls")
+	queuePtr := flag.Int("queue", 100000, "Queue size to pool jobs")
+	targetPtr := flag.String("target", "", "Target file with hosts to fingerprint")
+	methodPtr := flag.String("method", "GET", "which HTTP request to make the request with")
 	bodyPtr := flag.String("body", "", "Data to send in the request body")
-	debug := flag.Bool("debug", false, "Enable to see any errors with fetching targets")
+	debugPtr := flag.Bool("debug", false, "Enable to see any errors with fetching targets")
 	flag.Parse()
-	http.DefaultClient.Timeout = time.Duration(*timeoutPtr) * time.Second
+	badPath = *badpathPtr
+	if len(badPath) == 0 {
+		badPath = genBadPath()
+	}
+	JobQueue = make(chan *Job, *queuePtr)
+	debug = *debugPtr
+
+	dialer := net.Dialer{
+		Timeout:   time.Duration(*timeoutPtr) * time.Second,
+		KeepAlive: time.Duration(*timeoutPtr) * time.Second,
+	}
+
+	defaultTransport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+			CipherSuites:       nil,
+			MaxVersion:         tls.VersionTLS13,
+		},
+		DialContext:           dialer.DialContext,
+		MaxIdleConns:          100000,
+		MaxIdleConnsPerHost:   2,
+		IdleConnTimeout:       time.Duration(*timeoutPtr) * time.Second,
+		ResponseHeaderTimeout: time.Duration(*timeoutPtr) * time.Second,
+	}
+	client = http.Client{
+		Transport: defaultTransport,
+		Timeout:   time.Duration(*timeoutPtr) * time.Second,
+	}
+
 	jsonFile, err := os.Open(*fingerprintFile)
 	if err != nil {
 		log.Fatalln(err)
@@ -102,71 +198,49 @@ func main() {
 	if err := json.Unmarshal(byteValue, &fingerprints); err != nil {
 		log.Fatalf("Error parsing JSON. Check that it is compliant. \n %s \n", err)
 	}
-
 	for i := 0; i < *workers; i++ {
-		wg.Add(1)
-		/*
-			This following goroutine is where the magic happens
-			It pulls domains from the group, sends a GET request, then checks the headers and body for the fingerprints
-			described by the supplied JSON and moves the domain in the matching bucket if a match is found
-		*/
-		go func(fingerprintContainers map[string][]string) {
-			for domain := range domainsToSearch {
-				responseStringBad, err := fetcher(domain, *badpath, *methodPtr, *bodyPtr)
-				responseStringGood, err := fetcher(domain, *badpath, *methodPtr, *bodyPtr)
-				if err == nil {
-					matchedFingerprint, matchFound := matcher(responseStringGood+responseStringBad, fingerprints)
-					if matchFound {
-						log.Println(matchedFingerprint.Name + " found at " + domain)
-						fingerprintContainers[matchedFingerprint.Name] = append(matchBuckets[matchedFingerprint.Name], domain)
-					}
-				} else {
-					if *debug {
-						println(err.Error())
-					}
+		worker := NewWorker(JobQueue, fingerprints, &wg)
+		worker.Start2()
+	}
+	fmt.Printf("Started %d workers!\n", *workers)
+	inputFile, err := os.Open(*targetPtr)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer inputFile.Close()
+	scanner := bufio.NewScanner(inputFile)
+	for scanner.Scan() {
+
+		// let's create a job with the payload
+		//Push the work onto the queue. Blocking when we've filled up the queue
+
+		scheduleJob(NewJob(NewTarget(scanner.Text()), badPath, *methodPtr, *bodyPtr))
+		//Push the work onto the queue. Blocking when we've filled up the queue
+		scheduleJob(NewJob(NewTarget(scanner.Text()), "/", *methodPtr, *bodyPtr))
+
+	}
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+	close(JobQueue)
+	fmt.Println("Done ingesting jobs")
+	wg.Wait()
+	fmt.Println("Done")
+}
+
+func scheduleJob(work Job) {
+	done := false
+	for {
+		if !done {
+			select {
+			case JobQueue <- &work:
+				done = true
+			default:
+				if debug {
 				}
 			}
-			wg.Done()
-		}(matchBuckets)
-	}
-	s := bufio.NewScanner(os.Stdin)
-	for s.Scan() {
-		domainsToSearch <- s.Text()
-	}
-	close(domainsToSearch)
-	wg.Wait()
-	fmt.Println("Writing results to fingerprint files")
-
-	outputDirectory := *outputDir
-	if !strings.HasSuffix(*outputDir, "/") {
-		outputDirectory += "/"
-	}
-
-	if _, err := os.Stat(outputDirectory); os.IsNotExist(err) {
-		errDir := os.MkdirAll(outputDirectory, 0755)
-		if errDir != nil {
-			log.Fatal(err)
-		}
-
-	}
-	for fingerprint := range matchBuckets {
-		f, err := os.Create(outputDirectory + fingerprint + ".txt")
-		if err != nil {
-			fmt.Println(err.Error())
-			return
-		}
-		for _, fingerprintedDomain := range matchBuckets[fingerprint] {
-			_, err := f.WriteString(fingerprintedDomain + "\n")
-			if err != nil {
-				fmt.Println(err.Error())
-				f.Close()
-				return
-			}
-		}
-		err = f.Close()
-		if err != nil {
-			fmt.Println(err.Error())
-			return
+		} else {
+			break
 		}
 	}
 }
