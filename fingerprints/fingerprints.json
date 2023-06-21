@@ -1,90 +1,274 @@
 [
   {
-    "name": "jira",
-    "fingerprint" : ["Atlassian Jira","Jira"]
+    "name": "Jira",
+    "fingerprint": ["Atlassian Jira", "Jira", "jira.projectkey"]
+  },
+  { 
+    "name": "Apache",
+    "fingerprint": ["Server: Apache", "Powered-By: Apache"]
   },
   {
-    "name": "gitlab",
-    "fingerprint": ["set-cookie: _gitlab_session"]
+    "name": "Nginx",
+    "fingerprint": ["Server: nginx", "X-Nginx-Version"]
   },
   {
-    "name": "grafana",
-    "fingerprint" : ["grafana"]
+    "name": "Microsoft IIS",
+    "fingerprint": ["Server: Microsoft-IIS", "X-Powered-By: ASP.NET"]
   },
   {
-    "name": "github",
-    "fingerprint" : ["X-Github"]
+    "name": "LiteSpeed",
+    "fingerprint": ["Server: LiteSpeed", "Wp-LiteSpeed-Cache"]
   },
   {
-    "name": "jenkins",
-    "fingerprint" : ["X-Jenkins"]
+    "name": "Oracle WebLogic",
+    "fingerprint": ["Server: Oracle-WebLogic", "X-Oracle-WebLogic-Cluster-Node"]
   },
   {
-    "name": "tomcat",
-    "fingerprint" : ["Tomcat"]
+    "name": "IBM WebSphere",
+    "fingerprint": ["Server: IBM_HTTP_Server", "X-WebSphere-Application"]
   },
   {
-    "name": "splunk",
-    "fingerprint" : ["Server: Splunkd"]
+    "name": "Drupal",
+    "fingerprint": ["x-drupal-cache", "X-Generator: Drupal"]
   },
   {
-    "name": "confluence",
-    "fingerprint" : ["Confluence"]
+    "name": "WordPress",
+    "fingerprint": ["X-Powered-By: WordPress", "set-cookie: wordpress_"]
   },
   {
-    "name": "fisheye",
-    "fingerprint" : ["Log in to Crucible"]
+    "name": "Joomla",
+    "fingerprint": ["X-Content-Encoded-By: Joomla", "Joomla"]
   },
   {
-    "name": "bitbucket",
-    "fingerprint" : ["Atlassian Bitbucket"]
+    "name": "Magento",
+    "fingerprint": ["X-Magento", "Magento"]
   },
   {
-    "name": "bootspring",
-    "fingerprint" :["x-application-context"]
+    "name": "Shopify",
+    "fingerprint": ["X-ShopId", "shopify"]
   },
   {
-    "name": "aem",
-    "fingerprint" : ["/etc.clientlibs/"]
+    "name": "Express.js",
+    "fingerprint": ["X-Powered-By: Express", "expressjs"]
   },
   {
-    "name": "cisco",
-    "fingerprint" : ["Set-Cookie: webvpncontext","Cisco Secure Desktop"]
+    "name": "Django",
+    "fingerprint": ["x-contenttype-options: nosniff", "csrftoken"]
   },
   {
-    "name": "pulse",
-    "fingerprint" : ["dana-na"]
+    "name": "Flask",
+    "fingerprint": ["flask.ext.", "Flask"]
   },
   {
-    "name": "okta",
-    "fingerprint" : ["location: *.okta.com","<a href=\"http://www.okta.com/\""]
+    "name": "Ruby on Rails",
+    "fingerprint": ["X-Powered-By: Phusion Passenger", "Rails"]
   },
   {
-    "name": "onelogin",
-    "fingerprint" : ["location: *.onelogin.com"]
+    "name": "Microsoft Exchange",
+    "fingerprint": ["X-FEServer:", "Persistent-Auth: true"]
+  }, 
+  {
+    "name": "GitLab",
+    "fingerprint": ["set-cookie: _gitlab_session", "GitLab", "gitlab.csrf-token"]
   },
   {
-    "name": "openvpn",
-    "fingerprint": ["Server: OpenVPN"]
+    "name": "Grafana",
+    "fingerprint": ["grafana", "X-Grafana", "Grafana-API-Token"]
   },
   {
-    "name": "pritunl",
-    "fingerprint": ["pritunl"]
+    "name": "GitHub",
+    "fingerprint": ["X-GitHub", "GitHub Enterprise", "github.com"]
   },
   {
-    "name": "graphql",
-    "fingerprint": ["query missing","Prettify"]
+    "name": "Jenkins",
+    "fingerprint": ["X-Jenkins", "Jenkins-Crumb", "Jenkins-Version"]
+  },
+  {
+    "name": "Tomcat",
+    "fingerprint": ["Tomcat", "PHASE_OF_MOON", "JSESSIONID="]
+  },
+  {
+    "name": "Splunk",
+    "fingerprint": ["Server: Splunkd", "splunkweb.cookie"]
+  },
+  {
+    "name": "Confluence",
+    "fingerprint": ["Confluence", "Atlassian Confluence", "confluence.theme"]
+  },
+  {
+    "name": "Fisheye",
+    "fingerprint": ["Log in to Crucible", "fisheye.ajax"]
+  },
+  {
+    "name": "Bitbucket",
+    "fingerprint": ["Atlassian Bitbucket", "x-bitbucket-orgid"]
+  },
+  {
+    "name": "Spring Boot",
+    "fingerprint": ["x-application-context", "springboot.icon"]
+  },
+  {
+    "name": "AEM",
+    "fingerprint": ["/etc.clientlibs/", "Adobe Experience Manager"]
+  },
+  {
+    "name": "Cisco",
+    "fingerprint": ["Set-Cookie: webvpncontext", "Cisco Secure Desktop", "Cisco Adaptive Security Appliance"]
+  },
+  {
+    "name": "Pulse Secure",
+    "fingerprint": ["dana-na", "pulseuserinfo", "pulse-secure.net"]
+  },
+  {
+    "name": "Okta",
+    "fingerprint": ["location: *.okta.com", "<a href=\"http://www.okta.com/\"", "Okta"]
+  },
+  {
+    "name": "OneLogin",
+    "fingerprint": ["location: *.onelogin.com", "OneLogin"]
+  },
+  {
+    "name": "OpenVPN",
+    "fingerprint": ["Server: OpenVPN", "OpenVPN"]
+  },
+  {
+    "name": "Pritunl",
+    "fingerprint": ["pritunl", "Pritunl-Auth-Token", "Pritunl"]
+  },
+  {
+    "name": "GraphQL",
+    "fingerprint": ["query missing", "Prettify", "GraphiQL"]
   },
   {
     "name": "Prometheus",
-    "fingerprint": ["Prometheus"]
+    "fingerprint": ["Prometheus", "Prometheus-Metrics", "prometheus_http_response_size"]
   },
   {
     "name": "Citrix",
-    "fingerprint": ["Citrix Login","Citrix"]
+    "fingerprint": ["Citrix Login", "Citrix", "set-cookie: citrix-user"]
   },
   {
     "name": "BIG-IP",
-    "fingerprint": ["<title>BIG-IP","BIG-IP-F5"]
+    "fingerprint": ["<title>BIG-IP", "BIG-IP-F5", "set-cookie: BIGipServer"]
+  },
+  {
+    "name": "Nextcloud",
+    "fingerprint": ["X-Powered-By: Nextcloud", "Nextcloud"]
+  },
+  {
+    "name": "ownCloud",
+    "fingerprint": ["X-Powered-By: ownCloud", "ownCloud"]
+  },
+  {
+    "name": "Matrix Synapse",
+    "fingerprint": ["X-Matrix", "Synapse/"]
+  },
+  {
+    "name": "Moodle",
+    "fingerprint": ["MoodleSession", "Moodle"]
+  },
+  {
+    "name": "phpMyAdmin",
+    "fingerprint": ["phpMyAdmin", "pma_cookie-"]
+  },
+  {
+    "name": "Redmine",
+    "fingerprint": ["_redmine_session", "Redmine"]
+  },
+  {
+    "name": "Roundcube",
+    "fingerprint": ["roundcube.sessid", "Roundcube"]
+  },
+  {
+    "name": "Node.js",
+    "fingerprint": ["X-Powered-By: Node.js", "node.js"]
+  },
+  {
+    "name": "Gitea",
+    "fingerprint": ["X-Source-Identifier: Gitea", "set-cookie: _gitea_session"]
+  },
+  {
+    "name": "Zabbix",
+    "fingerprint": ["Zabbix Frontend", "zbx_sessionid"]
+  },
+  {
+    "name": "Rocket.Chat",
+    "fingerprint": ["X-Instance-ID", "rocketchat_livechat"]
+  },
+  {
+    "name": "Elasticsearch",
+    "fingerprint": ["{ \"name\" : \"", "X-elastic-product: \"Elasticsearch\""]
+  },
+  {
+    "name": "Kibana",
+    "fingerprint": ["kbn-version", "Kibana"]
+  },
+  {
+    "name": "Traefik",
+    "fingerprint": ["Server: Traefik", "X-Forwarded-Host"]
+  },
+  {
+    "name": "Caddy",
+    "fingerprint": ["Server: Caddy", "ca_user"]
+  },
+  { 
+    "name": "PrestaShop",    
+    "fingerprint": ["PrestaShop", "PrestaShop-Token"]
+  },
+  {
+    "name": "MediaWiki",
+    "fingerprint": ["Powered by MediaWiki", "mediawiki.user"]
+  },
+  {
+    "name": "osTicket",
+    "fingerprint": ["Powered by osTicket", "osTicket"]
+  },
+  {
+    "name": "OpenCart",
+    "fingerprint": ["OpenCart", "oc_login_token="]
+  },
+  {
+    "name": "OpenLiteSpeed",
+    "fingerprint": ["Server: OpenLiteSpeed", "OLSWS"]
+  },
+  {
+    "name": "Ghost",
+    "fingerprint": ["X-Ghost-Cache-Status", "Ghost"]
+  },
+  {
+    "name": "Liferay",
+    "fingerprint": ["Liferay-Portal", "GUEST_LANGUAGE_ID"]
+  },
+  {
+    "name": "SugarCRM",
+    "fingerprint": ["Powered by SugarCRM", "Set-Cookie: sugarcrm="]
+  },
+  {
+    "name": "Traccar",
+    "fingerprint": ["Traccar", "traccar-web.select"]
+  },
+  {
+    "name": "Graylog",
+    "fingerprint": ["X-Graylog-Node-ID", "Graylog"]
+  },
+  {
+    "name": "OpenProject",
+    "fingerprint": ["X-OpenProject-Sessid", "_open_project_session"]
+  },
+  {
+    "name": "RabbitMQ",
+    "fingerprint": ["webkitNotifications=true;", "X-Reason: login"]
+  },
+  {
+    "name": "PostgreSQL",
+    "fingerprint": ["PostgreSQL", "sslmode="]
+  },
+  {
+    "name": "MySQL",
+    "fingerprint": ["Server: MySQL", "mysql_native_password"]
+  },
+  {
+    "name": "MSSQL",
+    "fingerprint": ["Microsoft SQL Server", "x-sql-product: SQL Server"]
   }
 ]
