@@ -119,6 +119,9 @@ func (w Worker) Start2() {
 
 func NewTarget(targetParts string) Target {
 	targetPieces := strings.Split(targetParts, ",")
+	if len(targetPieces) < 3 {
+		log.Fatal("Invalid target file format. Expected format: Domain,IP,Port")
+	}
 	return Target{strings.ReplaceAll(targetPieces[0], "\"", ""),
 		strings.ReplaceAll(targetPieces[1], "\"", ""),
 		strings.ReplaceAll(targetPieces[2], "\"", ""), "", "", 0, ""}
