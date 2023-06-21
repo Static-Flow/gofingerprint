@@ -31,12 +31,18 @@ type Job struct {
 	Collector colly.Collector
 }
 
+func (j *Job) Fetch() {
+	j.Collector.Visit(fmt.Sprintf("http://%s%s", j.Target.Domain, j.Path))
+}
+
 func NewJob(target Target, badPath string, requestMethod string, requestBody string) Job {
 	collector := colly.NewCollector(
 		colly.MaxDepth(1),
 	)
 	collector.AllowURLRevisit = true
-	collector.SetClient(&client)
+	collector.WithTransport(&http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	})
 	collector.ParseHTTPErrorResponse = true
 	collector.OnHTML("title", func(element *colly.HTMLElement) {
 		if len(element.Text) > 49 {
@@ -50,15 +56,6 @@ func NewJob(target Target, badPath string, requestMethod string, requestBody str
 		target.Body = string(response.Body)
 	})
 	return Job{&target, badPath, requestMethod, requestBody, *collector}
-}
-
-func (j Job) Fetch() {
-	targetUrl := "https://" + j.Target.Ip + ":" + j.Target.Port + j.Path
-	err := j.Collector.Visit(targetUrl)
-	if err != nil && debug {
-		fmt.Println(targetUrl)
-		fmt.Println(err)
-	}
 }
 
 type Target struct {
@@ -92,7 +89,7 @@ func (w Worker) Start2() {
 		for {
 			select {
 			case job := <-w.JobChannel:
-				if job == nil {
+				if job == (*Job)(nil) {
 					wgi.Done()
 					return
 				} else {
@@ -122,6 +119,9 @@ func (w Worker) Start2() {
 
 func NewTarget(targetParts string) Target {
 	targetPieces := strings.Split(targetParts, ",")
+	if len(targetPieces) < 3 {
+		log.Fatal("Invalid target file format. Expected format: Domain,IP,Port")
+	}
 	return Target{strings.ReplaceAll(targetPieces[0], "\"", ""),
 		strings.ReplaceAll(targetPieces[1], "\"", ""),
 		strings.ReplaceAll(targetPieces[2], "\"", ""), "", "", 0, ""}
