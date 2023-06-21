@@ -71,7 +71,7 @@ type Worker struct {
 	Colly        colly.Collector
 }
 
-func NewWorker(jobs chan *Job, fingerprints []Fingerprint, wg *sync.WaitGroup) Worker {
+func NewWorker(jobs chan Job, fingerprints []Fingerprint, wg *sync.WaitGroup) Worker {
 	return Worker{
 		JobChannel:   jobs,
 		Fingerprints: fingerprints,
