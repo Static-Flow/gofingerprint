@@ -36,7 +36,9 @@ func NewJob(target Target, badPath string, requestMethod string, requestBody str
 		colly.MaxDepth(1),
 	)
 	collector.AllowURLRevisit = true
-	collector.SetClient(&client)
+	collector.WithTransport(&http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	})
 	collector.ParseHTTPErrorResponse = true
 	collector.OnHTML("title", func(element *colly.HTMLElement) {
 		if len(element.Text) > 49 {
