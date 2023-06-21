@@ -36,7 +36,7 @@ func NewJob(target Target, badPath string, requestMethod string, requestBody str
 		colly.MaxDepth(1),
 	)
 	collector.AllowURLRevisit = true
-	collector.WithTransport(&http.Transport{ // Add this line
+	collector.WithTransport(&http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	})
 	collector.ParseHTTPErrorResponse = true
@@ -65,13 +65,13 @@ type Target struct {
 }
 
 type Worker struct {
-	JobChannel   chan Job
+	JobChannel   chan *Job
 	Fingerprints []Fingerprint
 	WorkGroup    *sync.WaitGroup
 	Colly        colly.Collector
 }
 
-func NewWorker(jobs chan Job, fingerprints []Fingerprint, wg *sync.WaitGroup) Worker {
+func NewWorker(jobs chan *Job, fingerprints []Fingerprint, wg *sync.WaitGroup) Worker {
 	return Worker{
 		JobChannel:   jobs,
 		Fingerprints: fingerprints,
@@ -85,7 +85,7 @@ func (w Worker) Start2() {
 		for {
 			select {
 			case job := <-w.JobChannel:
-				if job == nil {
+				if job == (*Job)(nil) {
 					wgi.Done()
 					return
 				} else {
