@@ -31,6 +31,10 @@ type Job struct {
 	Collector colly.Collector
 }
 
+func (j *Job) Fetch() {
+	j.Collector.Visit(fmt.Sprintf("http://%s%s", j.Target.Domain, j.Path))
+}
+
 func NewJob(target Target, badPath string, requestMethod string, requestBody string) Job {
 	collector := colly.NewCollector(
 		colly.MaxDepth(1),
