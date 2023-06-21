@@ -36,7 +36,9 @@ func NewJob(target Target, badPath string, requestMethod string, requestBody str
 		colly.MaxDepth(1),
 	)
 	collector.AllowURLRevisit = true
-	collector.SetClient(&client)
+	collector.WithTransport(&http.Transport{ // Add this line
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	})
 	collector.ParseHTTPErrorResponse = true
 	collector.OnHTML("title", func(element *colly.HTMLElement) {
 		if len(element.Text) > 49 {
@@ -50,15 +52,6 @@ func NewJob(target Target, badPath string, requestMethod string, requestBody str
 		target.Body = string(response.Body)
 	})
 	return Job{&target, badPath, requestMethod, requestBody, *collector}
-}
-
-func (j Job) Fetch() {
-	targetUrl := "https://" + j.Target.Ip + ":" + j.Target.Port + j.Path
-	err := j.Collector.Visit(targetUrl)
-	if err != nil && debug {
-		fmt.Println(targetUrl)
-		fmt.Println(err)
-	}
 }
 
 type Target struct {
