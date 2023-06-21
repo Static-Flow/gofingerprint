@@ -65,7 +65,7 @@ type Target struct {
 }
 
 type Worker struct {
-	JobChannel   chan *Job
+	JobChannel   chan Job
 	Fingerprints []Fingerprint
 	WorkGroup    *sync.WaitGroup
 	Colly        colly.Collector
